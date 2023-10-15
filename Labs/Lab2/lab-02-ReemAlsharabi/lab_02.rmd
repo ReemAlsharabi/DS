@@ -1,0 +1,143 @@
+---
+title: "Quiz 01: Data wrangling"
+Date: "Wenesday, March 15"
+author: ""
+date: ""
+editor_options: 
+  chunk_output_type: console
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Packages
+
+```{r load-packages, message = FALSE}
+
+library(tidyverse)
+```
+
+# Data
+
+```{r load-data, message = FALSE}
+lego <- read_csv("./lego.csv")
+```
+
+# Exercise 1
+
+```{r}
+lego_filtered <- lego %>%
+filter(!is.na(pieces)) %>%
+filter(pieces != 0) %>%
+filter(!is.na(retail_price)) %>%
+filter(retail_price != 0) %>%
+filter(!is.na(year))
+
+```
+
+# Exercise 2
+
+```{r}
+lego_filtered %>%
+arrange(desc(retail_price)) %>%
+slice(1:3)%>%
+print(width = Inf)
+```
+
+Describe the three most expensive sets here. 
+the most expensive 3 lego sets are Millennium Falcon , Connections Kit and Death Star.
+
+
+# Exercise 3
+
+```{r}
+mutate( lego_filtered, "price_per_piece")
+lego <- lego %>%
+  mutate(price_per_piece = retail_price / pieces)
+print(lego, width = Inf)
+```
+
+# Exercise 4
+
+```{r}
+# Filter out sets with low piece counts
+lego_filtered <- lego %>% filter(pieces > 1)
+
+# Create the price_per_piece variable
+lego_filtered <- lego_filtered %>%
+  mutate(price_per_piece = retail_price / pieces)
+
+# Arrange the dataset in descending order of price_per_piece and select specific columns
+lego_sorted <- lego_filtered %>%
+  arrange(desc(price_per_piece)) %>%
+  select(name, themegroup, theme, pieces, price_per_piece)
+
+# Print the first five rows
+head(lego_sorted, 5)
+```
+
+Describe what you notice about the sets with the highest price per piece. 
+
+# Exercise 5
+
+```{r}
+library(dplyr)
+
+# Filter dataset for "The Lord of the Rings" theme and non-missing retail prices
+lego_filtered_lotr <- lego[lego$theme == "The Lord of the Rings" & !is.na(lego$retail_price), ]
+
+# Group the filtered dataset by subtheme
+grouped_data <- lego_filtered_lotr %>%
+  group_by(subtheme)
+
+# Calculate the cheapest and most expensive sets in each subtheme
+result <- grouped_data %>%
+  summarize(
+    cheapest_set = min(retail_price),
+    most_expensive_set = max(retail_price)
+  )
+result_tibble <- as_tibble(result)
+result_tibble
+```
+
+# Exercise 6
+
+```{r}
+# Remove rows with missing or zero values in retail_price or pieces columns
+lego_clean <- lego %>%
+  filter(!is.na(retail_price) & !is.na(pieces) & retail_price != 0 & pieces != 0)
+
+# Recalculate yearly trends with the cleaned dataset
+yearly_trends <- lego_clean %>%
+  group_by(year) %>%
+  summarize(
+    num_sets = n(),
+    median_price_per_piece = median(retail_price / pieces)
+  )
+
+# Convert the result to a tibble
+yearly_trends <- as_tibble(yearly_trends)
+
+# View the yearly_trends tibble
+yearly_trends
+```
+
+# Exercise 7
+
+```{r}
+library(ggplot2)
+
+# Filter out rows with missing values in the yearly_trends tibble
+yearly_trends_filtered <- yearly_trends %>%
+  filter(!is.na(year) & !is.na(median_price_per_piece))
+
+# Plotting the median price per piece over time
+ggplot(yearly_trends_filtered, aes(x = year, y = median_price_per_piece)) +
+  geom_point(aes(size = num_sets), alpha = 0.7, color = "steelblue") +
+  scale_size(range = c(3, 10)) +
+  labs(x = "Year", y = "Median Price per Piece", size = "Number of Sets") +
+  theme_minimal()
+```
+
+Comment on what you observe in the plot above. 
+The analysis of the median price per piece over time reveals that from 1960 to 1980, the median price per piece was consistently low, with occasional high outliers. However, from 1980 to 1990, there was a shift towards prices closer to the 0.25 threshold. From 1990 to 2020, the median price per piece remained consistently low, without outliers. These findings suggest that LEGO sets have generally maintained an affordable price per piece over the years, with some fluctuations and a trend towards closer alignment with the 0.25 price point.

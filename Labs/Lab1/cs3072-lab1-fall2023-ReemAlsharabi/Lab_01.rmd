@@ -1,0 +1,92 @@
+---
+title: "Lab 01: Data visualization"
+subtitle: "Due: Friday, Oct 6 at 11:59pm"
+author: ""
+date: ""
+editor_options: 
+  chunk_output_type: console
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Packages
+
+```{r load-packages, message = FALSE, warning = FALSE}
+library(tidyverse)
+``` 
+
+# Exercise 1
+
+```{r ex-1}
+data <- mpg
+glimpse(data)
+```
+
+# Exercise 2
+
+```{r ex-2}
+ggplot(data=mpg, mapping=aes(x=cty, y=hwy, color=class))+geom_point()+labs(title="City Miles Per Hour VS Highway Miles Per Gallon (hwy)")
+```
+
+Describe the advantages and disadvantages of the plots here (you can delete
+these instructions when you're done).
+•	geom_point:
+Advantages:
+Simple and clear way to visualize points on a plot
+Easy to control point aesthetics like color, size, shape
+Disadvantages:
+Points can overlap if there are many observations in the same location
+Overlapping points make it hard to see density or count of observations
+•	geom_jitter:
+Advantages:
+Prevents overlapping of points by adding random noise/jitter to the points
+Better for dense datasets as it shows underlying patterns and density clearly
+Can still see individual observations unlike geom_density()
+Disadvantages:
+Adds random noise so exact positions are approximations rather than true values
+Less precise than geom_point if seeing exact positions is important
+More cluttered looking than geom_point if there are many points
+
+
+# Exercise 3
+
+```{r ex-3}
+ggplot(data=mpg, mapping=aes(x=cty, y=hwy, color=class))+geom_jitter()+labs(title="City Miles Per Hour VS Highway Miles Per Gallon (hwy)")
+```
+
+# Exercise 4
+
+```{r ex-4}
+ggplot(data=mpg, mapping=aes(x=cty, y=hwy, color=class))+geom_jitter()+labs(title="City Miles Per Hour VS Highway Miles Per Gallon (hwy)")+facet_wrap(drv~.)
+```
+
+Comment here on what you notice about the relationship between class and city
+miles per gallon.
+A car's class clearly impacts its city MPG (cty). Larger vehicles like SUVs, trucks and vans get fewer cty MPG than smaller cars. The connection between class and cty MPG seems non-linear, with SUVs lowest and tiny two-seaters highest.
+
+# Exercise 5
+
+```{r ex-5}
+ggplot(data=mpg, mapping=aes(x=cty, y=hwy, color=class))+geom_jitter()+labs(title="City Miles Per Hour VS Highway Miles Per Gallon, MN", x= "City Miles Per Gallon (cty)", y="Highway Miles Per Gallon(hwy)")+facet_wrap(drv~.)
+```
+
+What do you notice from the bar chart above?
+The relationship between city and highway MPG for different vehicle classes. Larger vehicles have lower city MPG than smaller ones. There is a non-linear link between class and city MPG. City MPG also varies significantly within each class.
+# Exercise 6
+
+Add a named code chunk here to recreate the plot. Remember, you can insert
+code chunks using the "insert chunk" button (a green C with a +) and select `R`. Alternatively, use CMD + OPTION + I (Mac) or CTRL + ALT + I (Windows).
+```{r ex-6}
+ggplot(data=mpg, aes(x=cty, y=class, color=class))+geom_boxplot()
+```
+
+```{r ex-7}
+ggplot(data=mpg)+geom_bar(mapping=aes(x=class, fill=drv))+coord_flip()+labs(title="Class VS Drive Train", x="Class")
+```
+
+```{r ex-8}
+mpg <- mpg %>% 
+  rename(vehicle_class = class)
+ggplot(data=mpg, mapping=aes(x=displ, y=hwy))+geom_point(size=0.5)+labs(title="Highway mpg VS Displacement",x="Displacement (Litres)", y="Highway mpg")+theme_bw()facet_wrap(~vehicle_class, nrow=2)
+```
